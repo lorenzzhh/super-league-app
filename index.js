@@ -1,19 +1,45 @@
 const express = require('express');
+
+const {connectToDb} = require("./database");
 const app = express();
 const port = 3000;
 
-// Middleware, um JSON-Body-Parsing zu ermöglichen
-app.use(express.json());
+//const morgan = require('morgan');
 
-// Beispiel-Route
-app.get('/', (req, res) => {
-    res.send('Hello, World!');
+/*// Middleware
+app.use(morgan('dev'));
+app.use(express.json());*/
+
+
+// Route zum Abrufen aller Spieler
+app.get('/api/players', async (req, res) => {
+    try {
+
+        const db = await connectToDb();
+        const players = db.collection("player")
+
+        res.json(await players.find({}).toArray());
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
 });
 
-// Beispiel-API-Route
-app.get('/api', (req, res) => {
-    res.json({ message: 'Welcome to the API!' });
-});
+
+
+/*// Route zum Abrufen eines einzelnen Spielers
+app.get('/api/players/:id', async (req, res) => {
+    try {
+        const player = await Player.findById(req.params.id);
+        if (!player) {
+            return res.status(404).json({ message: 'Player not found' });
+        }
+        res.json(player);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});*/
 
 // Server starten
 app.listen(port, () => {
